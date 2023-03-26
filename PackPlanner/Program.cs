@@ -26,9 +26,17 @@ internal class Program
     private static void Main(string[] args)
     {
         string? configString = Console.ReadLine();
-        if (string.IsNullOrEmpty(configString)) throw new ArgumentException("config line required");
+        if (string.IsNullOrEmpty(configString))
+        {
+            Console.WriteLine("Configuration line cannot be empty");
+            return;
+        }
         string[] configArray = configString.Split(',');
-        if (configArray.Length != 3) throw new ArgumentException("4 config arguments are required");
+        if (configArray.Length != 3)
+        {
+            Console.WriteLine("Configuration line must have 4 values");
+            return;
+        }
 
         SortOrder order = SortOrder.NATURAL;
         int maxPieces = 0;
@@ -44,18 +52,32 @@ internal class Program
             Console.WriteLine($"Unable to parse config: '{configString}'");
             return;
         }
+        if (maxPieces < 1)
+        {
+            Console.WriteLine("Atleast 1 piece must fit in a pack");
+            return;
+        }
 
         string? itemString;
         List<Item> allItems = new List<Item>();
         while (!string.IsNullOrEmpty(itemString = Console.ReadLine()))
         {
             string[] itemArray = itemString.Split(',');
-            if (itemArray.Length != 4) throw new ArgumentException("items must have 4 attribute values");
+            if (itemArray.Length != 4)
+            {
+                Console.WriteLine("Item line must have 4 values");
+                return;
+            }
             Item newItem;
             try
             {
                 newItem = new Item(int.Parse(itemArray[0]), int.Parse(itemArray[1]), int.Parse(itemArray[2]), float.Parse(itemArray[3]));
                 allItems.Add(newItem);
+                if (newItem.Weight > maxWeight)
+                {
+                    Console.WriteLine("piece must be equal to or lighter than max pack weight");
+                    return;
+                }
             }
             catch (FormatException)
             {
@@ -68,6 +90,52 @@ internal class Program
         else if (order == SortOrder.LONG_TO_SHORT)
             allItems.Sort((i1, i2) => i2.Length.CompareTo(i1.Length));
 
+        int currentItems = 0;
+        float currentWeight = 0;
+        List<Item> currentPack = new List<Item>();
+        List<List<Item>> allPacks = new List<List<Item>>();
+        foreach (Item item in allItems)
+        {
+            for (int i = 0; i < item.Quantity; i++)
+            {
+                if (currentItems + 1 <= maxPieces && currentWeight + item.Weight <= maxWeight)
+                {
+                    currentItems++;
+                    currentWeight += item.Weight;
+                    if (currentPack.Count != 0 && currentPack.Last().Id == item.Id)
+                    {
+                        currentPack[^1].Quantity++;
+                    }
+                    else
+                    {
+                        currentPack.Add(new Item(item.Id, item.Length, 1, item.Weight));
+                    }
 
+                }
+                else
+                {
+                    allPacks.Add(currentPack);
+                    currentPack = new List<Item>();
+                    currentPack.Add(new Item(item.Id, item.Length, 1, item.Weight));
+                    currentItems = 1;
+                    currentWeight = item.Weight;
+                }
+            }
+        }
+        allPacks.Add(currentPack);
+        for (int i = 0; i < allPacks.Count; i++)
+        {
+            Console.WriteLine($"Pack Number: {i + 1}");
+            int packLength = 0;
+            float packWeight = 0;
+            foreach (Item item in allPacks[i])
+            {
+                Console.WriteLine($"{item.Id}, {item.Length}, {item.Quantity},{item.Weight}");
+                if (item.Length > packLength)
+                    packLength = item.Length;
+                packWeight += item.Quantity * item.Weight;
+            }
+            Console.WriteLine($"Pack Length: {packLength}, Pack Weight: {packWeight}");
+        }
     }
 }
