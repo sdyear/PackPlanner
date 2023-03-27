@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using static PackPlanner.Program;
 
 namespace PackPlanner;
 public class Program
@@ -105,6 +106,15 @@ public class Program
         }
     }
 
+    /// <summary>
+    /// Takes a list of items, sorts them and puts them into packs
+    /// that meet the restrictions defined in the arguments.
+    /// </summary>
+    /// <param name="order">The order the items should be sorted by length</param>
+    /// <param name="maxItems">The maximum number of items per pack</param>
+    /// <param name="maxWeight">The maximum weight of the items in a pack</param>
+    /// <param name="items">The list of the items to be put in packs</param>
+    /// <returns></returns>
     public static List<List<Item>> CreatePacks(SortOrder order, int maxItems, float maxWeight, List<Item> items)
     {
         if (order == SortOrder.SHORT_TO_LONG)
@@ -144,7 +154,7 @@ public class Program
                 }
             }
         }
-        allPacks.Add(currentPack);
+        if (currentPack.Count > 0) allPacks.Add(currentPack);
         return allPacks;
     }
 }
