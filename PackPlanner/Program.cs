@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 
-internal class Program
+namespace PackPlanner;
+public class Program
 {
-    enum SortOrder
+    public enum SortOrder
     {
         NATURAL,
         LONG_TO_SHORT,
         SHORT_TO_LONG
     }
 
-    class Item
+    public class Item
     {
         public Item(int id, int length, int quantity, float weight)
         {
@@ -23,7 +24,7 @@ internal class Program
         public int Quantity { get; set; }
         public float Weight { get; set; }
     }
-    private static void Main(string[] args)
+    public static void Main(string[] args)
     {
         string? configString = Console.ReadLine();
         if (string.IsNullOrEmpty(configString))
@@ -85,20 +86,41 @@ internal class Program
                 return;
             }
         }
+
+        List<List<Item>> allPacks = CreatePacks(order, maxPieces, maxWeight, allItems);
+
+        for (int i = 0; i < allPacks.Count; i++)
+        {
+            Console.WriteLine($"Pack Number: {i + 1}");
+            int packLength = 0;
+            float packWeight = 0;
+            foreach (Item item in allPacks[i])
+            {
+                Console.WriteLine($"{item.Id}, {item.Length}, {item.Quantity},{item.Weight}");
+                if (item.Length > packLength)
+                    packLength = item.Length;
+                packWeight += item.Quantity * item.Weight;
+            }
+            Console.WriteLine($"Pack Length: {packLength}, Pack Weight: {packWeight}");
+        }
+    }
+
+    public static List<List<Item>> CreatePacks(SortOrder order, int maxItems, float maxWeight, List<Item> items)
+    {
         if (order == SortOrder.SHORT_TO_LONG)
-            allItems.Sort((i1, i2) => i1.Length.CompareTo(i2.Length));
+            items.Sort((i1, i2) => i1.Length.CompareTo(i2.Length));
         else if (order == SortOrder.LONG_TO_SHORT)
-            allItems.Sort((i1, i2) => i2.Length.CompareTo(i1.Length));
+            items.Sort((i1, i2) => i2.Length.CompareTo(i1.Length));
 
         int currentItems = 0;
         float currentWeight = 0;
         List<Item> currentPack = new List<Item>();
         List<List<Item>> allPacks = new List<List<Item>>();
-        foreach (Item item in allItems)
+        foreach (Item item in items)
         {
             for (int i = 0; i < item.Quantity; i++)
             {
-                if (currentItems + 1 <= maxPieces && currentWeight + item.Weight <= maxWeight)
+                if (currentItems + 1 <= maxItems && currentWeight + item.Weight <= maxWeight)
                 {
                     currentItems++;
                     currentWeight += item.Weight;
@@ -123,19 +145,6 @@ internal class Program
             }
         }
         allPacks.Add(currentPack);
-        for (int i = 0; i < allPacks.Count; i++)
-        {
-            Console.WriteLine($"Pack Number: {i + 1}");
-            int packLength = 0;
-            float packWeight = 0;
-            foreach (Item item in allPacks[i])
-            {
-                Console.WriteLine($"{item.Id}, {item.Length}, {item.Quantity},{item.Weight}");
-                if (item.Length > packLength)
-                    packLength = item.Length;
-                packWeight += item.Quantity * item.Weight;
-            }
-            Console.WriteLine($"Pack Length: {packLength}, Pack Weight: {packWeight}");
-        }
+        return allPacks;
     }
 }
