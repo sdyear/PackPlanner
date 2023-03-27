@@ -24,6 +24,14 @@ public class Program
         public int Length { get; set; }
         public int Quantity { get; set; }
         public float Weight { get; set; }
+        public bool VerifyAttributes(int id, int length, int quantity, float weight)
+        {
+            if (id != this.Id) return false;
+            if (length != this.Length) return false;
+            if (quantity != this.Quantity) return false;
+            if (weight != this.Weight) return false;
+            return true;
+        }
     }
     public static void Main(string[] args)
     {
