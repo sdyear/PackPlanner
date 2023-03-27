@@ -28,13 +28,13 @@ internal class Program
         string? configString = Console.ReadLine();
         if (string.IsNullOrEmpty(configString))
         {
-            Console.WriteLine("Configuration line cannot be empty");
+            Console.Error.WriteLine("Configuration line cannot be empty");
             return;
         }
         string[] configArray = configString.Split(',');
         if (configArray.Length != 3)
         {
-            Console.WriteLine("Configuration line must have 4 values");
+            Console.Error.WriteLine("Configuration line must have 3 values");
             return;
         }
 
@@ -49,12 +49,12 @@ internal class Program
         }
         catch (Exception)
         {
-            Console.WriteLine($"Unable to parse config: '{configString}'");
+            Console.Error.WriteLine($"Unable to parse config: '{configString}'");
             return;
         }
         if (maxPieces < 1)
         {
-            Console.WriteLine("Atleast 1 piece must fit in a pack");
+            Console.Error.WriteLine("Atleast 1 piece must fit in a pack");
             return;
         }
 
@@ -65,7 +65,7 @@ internal class Program
             string[] itemArray = itemString.Split(',');
             if (itemArray.Length != 4)
             {
-                Console.WriteLine("Item line must have 4 values");
+                Console.Error.WriteLine("Item line must have 4 values");
                 return;
             }
             Item newItem;
@@ -75,13 +75,13 @@ internal class Program
                 allItems.Add(newItem);
                 if (newItem.Weight > maxWeight)
                 {
-                    Console.WriteLine("piece must be equal to or lighter than max pack weight");
+                    Console.Error.WriteLine("Pieces must be equal to or lighter than max pack weight");
                     return;
                 }
             }
             catch (FormatException)
             {
-                Console.WriteLine($"Unable to parse item: '{itemString}'");
+                Console.Error.WriteLine($"Unable to parse item: '{itemString}'");
                 return;
             }
         }
